@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SigFig Lab</title>
+<style>
+*{box-sizing:border-box;font-family:Arial,sans-serif}
+body{margin:0;background:#f4f6f9}
+main{max-width:900px;margin:auto;padding:20px}
+h1{text-align:center}
+textarea,input,button{
+width:100%;
+padding:12px;
+margin:8px 0;
+font-size:16px
+}
+button{
+background:#2563eb;
+color:#fff;
+border:0;
+cursor:pointer;
+border-radius:6px
+}
+button:hover{background:#1d4ed8}
+table{
+width:100%;
+border-collapse:collapse;
+margin-top:20px;
+background:#fff
+}
+th,td{
+border:1px solid #ddd;
+padding:8px;
+text-align:left
+}
+.warn{color:#b91c1c;font-weight:bold}
+.copy{
+width:auto;
+padding:8px 16px;
+margin-top:15px
+}
+@media(max-width:600px){
+table{font-size:13px}
+}
+</style>
+</head>
+<body>
+
+<main>
+
+<h1>SigFig Lab</h1>
+
+<textarea id="nums" rows="8"
+placeholder="Paste one number per line&#10;0.00229920&#10;1200&#10;3.40e5"></textarea>
+
+<label>Round to Significant Figures</label>
+
+<input id="sf" type="number" min="1" value="3">
+
+<button onclick="run()">Analyze</button>
+
+<button class="copy" onclick="copyResults()">Copy Results</button>
+
+<table>
+
+<thead>
+
+<tr>
+<th>Input</th>
+<th>SF</th>
+<th>Rounded</th>
+<th>Warning</th>
+</tr>
+
+</thead>
+
+<tbody id="out"></tbody>
+
+</table>
+
+</main>
+
+<script>
+
+function sciToPlain(s){
+
+s=s.replace(/×10\^?/i,"e");
+
+if(!/[eE]/.test(s)) return s;
+
+let [n,e]=s.split(/[eE]/);
+
+e=parseInt(e);
+
+let neg=n.startsWith("-");
+
+if(neg)n=n.slice(1);
+
+let p=n.split(".");
+
+let a=p[0];
+
+let b=p[1]||"";
+
+let d=a+b;
+
+let pos=a.length+e;
+
+if(pos<=0)
+d="0."+"0".repeat(-pos)+d;
+else if(pos>=d.length)
+d=d+"0".repeat(pos-d.length);
+else
+d=d.slice(0,pos)+"."+d.slice(pos);
+
+return (neg?"-":"")+d;
+
+}
+
+function countSF(x){function countSF(x){
+
+x=sciToPlain(x.trim());
+
+if(!x)return 0;
+
+x=x.replace(/^[-+]/,'');
+
+let warn=false;
+
+if(/^[0-9]+$/.test(x)&&/0$/.test(x)&&!/\./.test(x))
+warn=true;
+
+x=x.replace(/\.$/,'');
+
+let d=x.replace('.','');
+
+let c=0;
+
+let seen=false;
+
+for(let ch of d){
+
+if(ch!='0'){
+seen=true;
+c++;
+}
+
+else if(seen)
+c++;
+
+}
+
+if(x.includes('.')){
+
+let a=x.replace('.','');
+
+let i=0;
+
+while(i<a.length&&a[i]=='0')i++;
+
+c=a.length-i;
+
+}
+
+if(c<1)c=1;
+
+return{count:c,warn};
+
+}
+
+function roundSF(str,sf){
+
+let plain=sciToPlain(str.trim());
+
+let n=Number(plain);
+
+if(!isFinite(n))return"";
+
+if(n===0)return"0";
+
+let neg=n<0;
+
+n=Math.abs(n);
+
+let exp=Math.floor(Math.log10(n));
+
+let f=Math.pow(10,exp-sf+1);
+
+let r=Math.round(n/f)*f;
+
+let dec=Math.max(0,sf-exp-1);
+
+let out=r.toFixed(dec);
+
+if(neg)out="-"+out;
+
+return out;
+
+}
+
+function run(){
+
+let sf=parseInt(document.getElementById("sf").value);
+
+let lines=document
+.getElementById("nums")
+.value
+.split(/\n+/)
+.filter(v=>v.trim());
+
+let tbody=document.getElementById("out");
+
+tbody.innerHTML="";
+
+let copy=[];
+
+for(let line of lines){
+
+let info=countSF(line);
+
+let rounded=roundSF(line,sf);
+
+let tr=document.createElement("tr");
+
+tr.innerHTML=
+"<td>"+line+"</td>"+
+"<td>"+info.count+"</td>"+
+"<td>"+rounded+"</td>"+
+"<td class='warn'>"+
+(info.warn?"Ambiguous":"")+
+"</td>";
+
+tbody.appendChild(tr);
+
+copy.push(
+line+
+"\t"+
+info.count+
+"\t"+
+rounded
+);
+
+}
+
+window.results=copy.join("\n");
+
+}
+function roundSF(str,sf){
+
+let plain=sciToPlain(str.trim());
+
+let n=Number(plain);
+
+if(!isFinite(n))return"";
+
+if(n===0)return"0";
+
+let neg=n<0;
+n=Math.abs(n);
+
+let exp=Math.floor(Math.log10(n));
+let m=n/Math.pow(10,exp);
+
+m=Number(m.toPrecision(sf));
+
+if(m>=10){
+m/=10;
+exp++;
+}
+
+let out=(m*Math.pow(10,exp)).toFixed(Math.max(0,sf-exp-1));
+
+return(neg?"-":"")+out;
+
+}
+
+function copyResults(){
+
+if(!window.results)return;
+
+navigator.clipboard.writeText(window.results);
+
+alert("Copied!");
+
+}
+
+</script>
+
+</body>
+</html>
