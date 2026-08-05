@@ -14,7 +14,7 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: white;
             min-height: 100vh;
             padding: 20px;
             color: #333;
@@ -27,7 +27,7 @@
 
         header {
             text-align: center;
-            color: white;
+            color: #0052cc;
             margin-bottom: 40px;
         }
 
@@ -35,20 +35,19 @@
             font-size: 2.5em;
             margin-bottom: 10px;
             font-weight: 700;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
 
         .subtitle {
             font-size: 1.1em;
-            opacity: 0.95;
+            color: #666;
             font-weight: 300;
         }
 
         .main-panel {
             background: white;
-            border-radius: 12px;
+            border-radius: 8px;
             padding: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            border: 1px solid #e0e0e0;
             margin-bottom: 30px;
         }
 
@@ -79,8 +78,8 @@
 
         textarea, input[type="number"] {
             padding: 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
+            border: 1px solid #d0d0d0;
+            border-radius: 6px;
             font-size: 1em;
             font-family: 'Courier New', monospace;
             transition: border-color 0.2s;
@@ -88,8 +87,8 @@
 
         textarea:focus, input[type="number"]:focus {
             outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            border-color: #0052cc;
+            box-shadow: 0 0 0 3px rgba(0, 82, 204, 0.1);
         }
 
         textarea {
@@ -110,7 +109,7 @@
         button {
             padding: 12px 24px;
             border: none;
-            border-radius: 8px;
+            border-radius: 6px;
             font-weight: 600;
             cursor: pointer;
             font-size: 1em;
@@ -118,13 +117,14 @@
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #0052cc;
             color: white;
         }
 
         .btn-primary:hover {
+            background: #0042a0;
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 4px 12px rgba(0, 82, 204, 0.2);
         }
 
         .btn-primary:active {
@@ -132,13 +132,13 @@
         }
 
         .btn-secondary {
-            background: #f0f0f0;
+            background: #f5f5f5;
             color: #333;
-            border: 2px solid #e0e0e0;
+            border: 1px solid #d0d0d0;
         }
 
         .btn-secondary:hover {
-            background: #e8e8e8;
+            background: #ececec;
         }
 
         .btn-secondary:disabled {
@@ -147,8 +147,8 @@
         }
 
         .instructions {
-            background: #f8f9fa;
-            border-left: 4px solid #667eea;
+            background: #f9f9f9;
+            border-left: 4px solid #0052cc;
             padding: 15px;
             border-radius: 6px;
             font-size: 0.9em;
@@ -168,9 +168,9 @@
 
         .results-section {
             background: white;
-            border-radius: 12px;
+            border-radius: 8px;
             padding: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            border: 1px solid #e0e0e0;
         }
 
         .results-header {
@@ -196,7 +196,7 @@
         }
 
         th {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #0052cc;
             color: white;
             padding: 15px;
             text-align: left;
@@ -209,7 +209,7 @@
         }
 
         tr:hover {
-            background: #f8f9fa;
+            background: #f9f9f9;
         }
 
         .empty-message {
@@ -220,8 +220,8 @@
         }
 
         .warning-badge {
-            background: #fff3cd;
-            color: #856404;
+            background: #fff0e6;
+            color: #cc6600;
             padding: 4px 8px;
             border-radius: 4px;
             font-size: 0.85em;
@@ -235,8 +235,8 @@
         }
 
         .sf-count {
-            background: #e7f3ff;
-            color: #0066cc;
+            background: #e3f2fd;
+            color: #0052cc;
             padding: 2px 6px;
             border-radius: 3px;
             font-weight: 600;
@@ -255,15 +255,14 @@
 
         footer {
             text-align: center;
-            color: white;
+            color: #666;
             margin-top: 40px;
             font-size: 0.9em;
-            opacity: 0.8;
         }
 
         .success-msg {
-            background: #d4edda;
-            color: #155724;
+            background: #e8f5e9;
+            color: #2e7d32;
             padding: 10px 15px;
             border-radius: 6px;
             margin-top: 10px;
@@ -287,7 +286,7 @@
         }
 
         .error-input {
-            border-color: #dc3545 !important;
+            border-color: #d32f2f !important;
         }
 
         @media (max-width: 768px) {
@@ -327,7 +326,7 @@
                 <strong>📝 How to use:</strong>
                 <ul>
                     <li>Paste numbers (one per line) or enter a single number</li>
-                    <li>Supports: decimals, integers, negatives, and scientific notation (e.g., 1.23e-5 or 3.4E8)</li>
+                    <li>Supports: decimals, integers, negatives, and scientific notation (e.g., 1.23e-5, 1x10-5, or 3.4E8)</li>
                     <li>Specify the number of significant figures to round to</li>
                     <li>Results show original value, SF count, and rounded value</li>
                 </ul>
@@ -336,7 +335,7 @@
             <div class="input-section">
                 <div class="form-group">
                     <label for="numberInput">Numbers to Analyze</label>
-                    <textarea id="numberInput" placeholder="Enter numbers here&#10;One per line, or paste multiple&#10;&#10;Examples:&#10;0.00229920&#10;5600&#10;1.23e-5&#10;3.400E8"></textarea>
+                    <textarea id="numberInput" placeholder="Enter numbers here&#10;One per line, or paste multiple&#10;&#10;Examples:&#10;0.00229920&#10;5600&#10;1.23e-5&#10;1x10-5&#10;3.400E8"></textarea>
                 </div>
                 <div class="form-group">
                     <label for="sigFigsInput">Significant Figures to Round To</label>
@@ -380,8 +379,8 @@
                 result = result.replace(new RegExp(superscripts[i], 'g'), numbers[i]);
             }
             
-            // Convert ×10n to en
-            result = result.replace(/×10([+-]?\d+)/gi, 'e$1');
+            // Convert ×10n and x10n to en
+            result = result.replace(/[×x]10([+-]?\d+)/gi, 'e$1');
             
             return result;
         }
@@ -578,7 +577,7 @@
                 if (result.warning) {
                     html += '<span class="warning-badge">' + escapeHtml(result.warning) + '</span>';
                 } else {
-                    html += '<span style="color: #28a745;">✓</span>';
+                    html += '<span style="color: #2e7d32;">✓</span>';
                 }
                 html += '</td>';
                 html += '</tr>';
@@ -636,7 +635,7 @@
         function showCopySuccess() {
             const msg = document.createElement('div');
             msg.textContent = '✓ Copied to clipboard';
-            msg.style.cssText = 'position: fixed; bottom: 20px; right: 20px; background: #28a745; color: white; padding: 15px 20px; border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 1000; animation: slideIn 0.3s ease-out;';
+            msg.style.cssText = 'position: fixed; bottom: 20px; right: 20px; background: #0052cc; color: white; padding: 15px 20px; border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 1000; animation: slideIn 0.3s ease-out;';
             document.body.appendChild(msg);
             setTimeout(() => msg.remove(), 2000);
         }
