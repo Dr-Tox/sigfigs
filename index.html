@@ -528,7 +528,7 @@
                 return;
             }
             
-            const lines = input.split('\n').map(l => l.trim()).filter(l => l);
+           const lines = input.split(/[,\s]+/).map(l => l.trim()).filter(l => l);
             const results = [];
             
             for (const line of lines) {
