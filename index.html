@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Analyze measurement precision and round significant figures with explicit scientific rounding conventions. All calculations run locally.">
+<title>SigFig Lab — Significant Figures Calculator</title>
+<style>
+
+:root {
+    color-scheme:light;
+    --blue:#175CD3;
+    --ink:#18283f;
+    --muted:#526174;
+    --line:#dce2ea;
+    --surface:#f6f8fb;
+    --mono:ui-monospace,SFMono-Regular,Consolas,monospace}
+
+* {
+    box-sizing:border-box}
+body {
+    margin:0;
+    background:var(--surface);
+    color:var(--ink);
+    font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+button,input,select,textarea {
+    font:inherit}
+button {
+    cursor:pointer}
+button:disabled {
+    cursor:default;
+    opacity:.5}
+a {
+    color:var(--blue)}
+:focus-visible {
+    outline:3px solid var(--blue);
+    outline-offset:3px}
+.skip {
+    position:absolute;
+    top:-100px;
+    left:16px;
+    background:white;
+    padding:12px;
+    z-index:2}
+.skip:focus {
+    top:8px}
+.app-header {
+    background:white;
+    border-bottom:1px solid var(--line)}
+.header-inner {
+    max-width:1100px;
+    margin:auto;
+    padding:22px 20px;
+    display:flex;
+    align-items:center;
+    gap:12px}
+.lab-icon {
+    width:40px;
+    height:40px;
+    display:grid;
+    place-items:center;
+    background:#edf4ff;
+    color:var(--blue);
+    border:1px solid #d9e7ff;
+    border-radius:10px;
+    flex-shrink:0}
+h1 {
+    font-size:20px;
+    line-height:1.2;
+    letter-spacing:-.5px;
+    margin:0}
+p {
+    margin:0}
+.subtitle {
+    font-size:12px;
+    color:var(--muted);
+    margin-top:3px}
+.local-note {
+    margin-left:auto;
+    color:var(--muted);
+    font-size:12px;
+    display:none}
+main {
+    max-width:1100px;
+    margin:32px auto;
+    padding:0 16px}
+.intro {
+    margin-bottom:22px}
+.eyebrow {
+    font-size:11px;
+    font-weight:700;
+    letter-spacing:1.5px;
+    text-transform:uppercase;
+    color:var(--blue);
+    margin-bottom:8px}
+.intro h2 {
+    font-size:26px;
+    letter-spacing:-.7px;
+    line-height:1.25;
+    margin:0 0 8px}
+.intro p {
+    color:var(--muted);
+    max-width:660px}
+.card {
+    background:white;
+    border:1px solid var(--line);
+    border-radius:12px;
+    margin-bottom:24px;
+    overflow:hidden;
+    box-shadow:0 2px 4px #18283f03}
+.card-head {
+    padding:20px;
+    border-bottom:1px solid var(--line);
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:space-between;
+    align-items:center;
+    gap:12px}
+.card-head h2 {
+    font-size:16px;
+    margin:0;
+    font-weight:650}
+.section-index {
+    color:var(--blue);
+    font:12px var(--mono);
+    margin-right:10px}
+.card-head p {
+    font-size:12px;
+    color:var(--muted);
+    margin-top:4px}
+.form-body {
+    padding:20px}
+.input-grid {
+    display:grid;
+    gap:24px}
+.field label {
+    display:block;
+    font-size:13px;
+    font-weight:650;
+    margin-bottom:8px}
+textarea,input,select {
+    border:1px solid #aebaca;
+    border-radius:8px;
+    background:white;
+    color:var(--ink);
+    width:100%;
+    padding:11px 12px;
+    min-height:44px}
+textarea {
+    display:block;
+    min-height:188px;
+    resize:vertical;
+    font:14px/1.8 var(--mono);
+    font-variant-numeric:tabular-nums}
+textarea::placeholder {
+    color:#66758a;
+    opacity:1}
+.helper {
+    color:var(--muted);
+    font-size:12px;
+    margin-top:8px}
+.settings {
+    display:grid;
+    gap:20px;
+    align-content:start}
+.convention {
+    padding:12px 14px;
+    border:1px solid var(--line);
+    background:var(--surface);
+    border-radius:8px;
+    font-size:12px;
+    color:var(--muted)}
+.actions {
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    margin-top:24px;
+    padding-top:20px;
+    border-top:1px solid var(--line)}
+button {
+    border:1px solid #b9c5d3;
+    border-radius:8px;
+    padding:10px 16px;
+    min-height:44px;
+    background:white;
+    color:var(--ink);
+    font-weight:600;
+    font-size:13px}
+button:hover:not(:disabled) {
+    background:#f1f5fa}
+.primary {
+    background:var(--blue);
+    border-color:var(--blue);
+    color:white}
+.primary:hover:not(:disabled) {
+    background:#124cae}
+.shortcut {
+    color:var(--muted);
+    font-size:12px;
+    align-self:center}
+.notice {
+    margin-top:16px;
+    padding:12px 14px;
+    border:1px solid var(--line);
+    border-radius:8px;
+    font-size:13px;
+    background:#f6f9fe}
+.notice[data-kind="error"] {
+    border-color:#e6b0ab;
+    background:#fff5f4;
+    color:#8b2821}
+[aria-invalid="true"] {
+    border-color:#b42318}
+.summary {
+    display:grid;
+    grid-template-columns:1fr;
+    gap:12px;
+    padding:20px;
+    background:#fbfcfe;
+    border-bottom:1px solid var(--line)}
+.metric {
+    padding:12px 14px;
+    border:1px solid var(--line);
+    border-radius:8px;
+    background:white;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px}
+.metric dt {
+    font-size:12px;
+    color:var(--muted)}
+.metric dd {
+    font:600 22px var(--mono);
+    margin:0}
+dl {
+    margin:0}
+.empty {
+    padding:48px 20px;
+    text-align:center}
+.empty svg {
+    color:#71839b;
+    margin-bottom:12px}
+.empty h3 {
+    font-size:15px;
+    margin:0 0 6px}
+.empty p {
+    color:var(--muted);
+    font-size:13px}
+.table-wrap {
+    overflow-x:auto;
+    max-width:100%}
+.table-wrap:focus-visible {
+    outline-offset:-3px}
+table {
+    width:100%;
+    border-collapse:collapse;
+    font-size:13px;
+    min-width:690px}
+caption {
+    text-align:left;
+    padding:14px 20px;
+    color:var(--muted);
+    font-size:12px}
+th {
+    text-align:left;
+    background:#f7f9fc;
+    color:var(--muted);
+    font-size:11px;
+    font-weight:650;
+    letter-spacing:.3px;
+    padding:12px 20px;
+    border-block:1px solid var(--line)}
+td {
+    padding:16px 20px;
+    border-bottom:1px solid #e9edf2;
+    vertical-align:top}
+tr:last-child td {
+    border-bottom:0}
+tbody tr:hover {
+    background:#fafcff}
+.number {
+    font-family:var(--mono);
+    font-variant-numeric:tabular-nums;
+    white-space:nowrap}
+.original {
+    white-space:nowrap;
+    min-width:190px}
+.status {
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    border-radius:5px;
+    padding:3px 7px;
+    background:#f0f4f8;
+    color:#3b506c;
+    font-size:11px;
+    font-weight:600;
+    white-space:nowrap}
+.status.review {
+    background:#fff7e9;
+    color:#815109}
+.status.invalid {
+    background:#fff0ee;
+    color:#a13026}
+.status-detail {
+    font-size:11px;
+    color:var(--muted);
+    margin-top:5px;
+    max-width:200px}
+.sr-only {
+    position:absolute;
+    width:1px;
+    height:1px;
+    overflow:hidden;
+    clip:rect(0,0,0,0);
+    white-space:nowrap}
+.footer {
+    max-width:1100px;
+    margin:0 auto;
+    padding:0 20px 30px;
+    color:var(--muted);
+    font-size:11px}
+.footer p+p {
+    margin-top:5px}
+.footer strong {
+    font-weight:600;
+    color:#384b64}
+@media(min-width:600px) {
+    .actions {
+    flex-direction:row;
+    align-items:center}
+.shortcut {
+    margin-left:auto}
+.summary {
+    grid-template-columns:repeat(3,minmax(0,1fr))}
+.metric {
+    display:block}
+.metric dd {
+    margin-top:6px}
+.local-note {
+    display:block}
+}
+@media(min-width:900px) {
+    main {
+    padding:0 20px;
+    margin-top:40px}
+.input-grid {
+    grid-template-columns:minmax(0,1.65fr) minmax(0,1fr);
+    gap:32px}
+.form-body,.card-head {
+    padding:24px}
+.summary {
+    padding:20px 24px}
+.intro h2 {
+    font-size:28px}
+}
+
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to calculator</a>
+<header class="app-header"><div class="header-inner"><div class="lab-icon" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6M10 3v7L4.5 19a1.3 1.3 0 0 0 1.1 2h12.8a1.3 1.3 0 0 0 1.1-2L14 10V3M8 14h8M9 17h.01M14 18h.01"/></svg></div><div><h1>SigFig Lab</h1><p class="subtitle">Significant figures calculator</p></div><span class="local-note">Client-side calculation · No data uploaded</span></div></header>
+<main id="main">
+<div class="intro"><p class="eyebrow">Measurement precision</p><h2>Clarity in every significant digit.</h2><p>Count significant figures and round measurements with consistent, explicit conventions.</p></div>
+<section class="card" aria-labelledby="input-title"><div class="card-head"><div><h2 id="input-title"><span class="section-index" aria-hidden="true">01</span>Input &amp; Settings</h2><p>Enter your measurements exactly as recorded.</p></div></div>
+<form id="analysisForm" class="form-body" novalidate><div class="input-grid"><div class="field"><label for="numberInput">Measurements</label><textarea id="numberInput" spellcheck="false" autocapitalize="off" aria-describedby="measurements-help" placeholder="0.00229920&#10;5600&#10;3.400e8&#10;1.005"></textarea><p class="helper" id="measurements-help">Separate values with commas, spaces, tabs, or newlines. Supports decimals, signed values, and scientific notation: 1.23e−5 or 1.23 × 10⁻⁵.</p></div><div class="settings"><div class="field"><label for="sigFigsInput">Target significant figures</label><input id="sigFigsInput" type="number" min="1" max="20" step="1" value="3" inputmode="numeric" aria-describedby="target-help"><p class="helper" id="target-help">1–20 significant figures. Leave blank to count only.</p></div><div class="field"><label for="roundingMethod">Rounding method</label><select id="roundingMethod" aria-describedby="rounding-help"><option value="half-up">Half up (ties away from zero)</option><option value="half-even">Half to even (banker’s rounding)</option></select><p class="helper" id="rounding-help">At an exact tie, round away from zero.</p></div><p class="convention">Trailing zeros in whole numbers such as 5600 are ambiguous. Use 5600. or 5.600e3 to specify precision.</p></div></div><div class="actions"><button type="submit" class="primary">Analyze Measurements</button><button type="button" id="clearBtn">Clear</button><span class="shortcut">Ctrl / ⌘ + Enter to analyze</span></div><div id="feedback" class="notice" role="status" aria-live="polite" hidden></div></form></section>
+<section class="card" aria-labelledby="results-title"><div class="card-head"><div><h2 id="results-title"><span class="section-index" aria-hidden="true">02</span>Analysis Results</h2><p>Original values are preserved exactly as entered.</p></div><button type="button" id="copyBtn" disabled>Copy Results</button></div><dl class="summary"><div class="metric"><dt>Total Measurements</dt><dd id="totalCount">0</dd></div><div class="metric"><dt>Valid Measurements</dt><dd id="validCount">0</dd></div><div class="metric"><dt>Ambiguous / Invalid Measurements</dt><dd id="reviewCount">0</dd></div></dl><div id="resultsContainer"><div class="empty"><svg aria-hidden="true" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h3M8 16h3M15 12h1M15 16h1"/></svg><h3>Ready for your measurements</h3><p>Enter values above, then select Analyze Measurements.</p></div></div></section>
+</main>
+<footer class="footer"><p><strong>SigFig Lab</strong> · Measurement precision for research, laboratory work, and scientific study. All processing stays in your browser.</p><p>Rounding: half up rounds exact ties away from zero; half to even selects the nearest even final digit. Scientific notation preserves explicit precision. For zero, decimal places indicate the displayed precision.</p></footer>
+<script>
+        function removeScientificNotation(str) {
+            const superscripts = '⁰¹²³⁴⁵⁶⁷⁸⁹';
+            return str.replace(/[⁰¹²³⁴⁵⁶⁷⁸⁹]/g, c => String(superscripts.indexOf(c)))
+                .replace(/[⁻−]/g, '-').replace(/⁺/g, '+')
+                .replace(/\s*[×x]\s*10\s*\^?\s*([+-]?\d+)/gi, 'e$1');
+        }
+
+        function parseNumber(input) {
+            const normalized = removeScientificNotation(input.trim());
+            if (!/^[+-]?(?:\d+\.?\d*|\.\d+)(?:[eE][+-]?\d+)?$/.test(normalized)) return null;
+            const value = Number(normalized);
+            if (!Number.isFinite(value)) return null;
+            const mantissa = normalized.split(/[eE]/)[0];
+            // Do not silently turn an underflowing nonzero measurement into zero.
+            if (value === 0 && /[1-9]/.test(mantissa)) return null;
+            return { original: input.trim(), normalized, value,
+                isScientific: /[eE]/.test(normalized), endsWithDecimal: mantissa.endsWith('.') };
+        }
+
+        function countSignificantFigures(parsed) {
+            const mantissa = parsed.normalized.split(/[eE]/)[0].replace(/^[+-]/, '');
+            const digits = mantissa.replace('.', '').replace(/^0+/, '');
+            if (!digits) {
+                return { count: Math.max(1, (mantissa.split('.')[1] || '').length), isAmbiguous: false };
+            }
+            const isAmbiguous = !parsed.isScientific && !mantissa.includes('.') && /0$/.test(mantissa);
+            return { count: isAmbiguous ? 0 : digits.length, isAmbiguous };
+        }
+
+        // Round decimal digits directly so binary floating-point cannot change ties.
+        // Ties round away from zero, matching the original calculator's convention.
+        function roundedParts(input, sigFigs, method = 'half-up') {
+            if (!['half-up', 'half-even'].includes(method)) throw new RangeError('Unknown rounding method');
+            if (!Number.isInteger(sigFigs) || sigFigs < 1 || sigFigs > 20) {
+                throw new RangeError('Significant figures must be an integer from 1 to 20');
+            }
+            const parsed = parseNumber(String(input));
+            if (!parsed) throw new RangeError('Invalid or out-of-range number');
+            const [mantissa, power = '0'] = parsed.normalized.toLowerCase().split('e');
+            const unsigned = mantissa.replace(/^[+-]/, '');
+            const raw = unsigned.replace('.', '');
+            const first = raw.search(/[1-9]/);
+            if (first < 0) return { digits: '0'.repeat(sigFigs), exponent: 0, sign: '', zero: true };
+            let exponent = Number(power) + (unsigned.includes('.') ? unsigned.indexOf('.') : unsigned.length) - first - 1;
+            const significant = raw.slice(first);
+            let digits = significant.slice(0, sigFigs).padEnd(sigFigs, '0');
+            const discarded = significant.slice(sigFigs);
+            const aboveHalf = discarded && (discarded[0] > '5' || (discarded[0] === '5' && /[1-9]/.test(discarded.slice(1))));
+            const tie = discarded[0] === '5' && !/[1-9]/.test(discarded.slice(1));
+            if (aboveHalf || (tie && (method === 'half-up' || Number(digits.at(-1)) % 2 === 1))) {
+                digits = (BigInt(digits) + 1n).toString();
+                if (digits.length > sigFigs) {
+                    exponent++;
+                    digits = digits.slice(0, sigFigs);
+                }
+            }
+            return { digits, exponent, sign: mantissa.startsWith('-') ? '-' : '', zero: false };
+        }
+
+        function formatRounded(parts, scientific) {
+            const { digits, exponent, sign, zero } = parts;
+            if (zero) return digits.length === 1 ? '0' : '0.' + digits.slice(1);
+            // Scientific notation makes integer precision explicit and bounds output size.
+            if (scientific || exponent >= digits.length || exponent < -6 ||
+                (exponent === digits.length - 1 && digits.endsWith('0'))) {
+                return sign + digits[0] + (digits.length > 1 ? '.' + digits.slice(1) : '') +
+                    'e' + (exponent >= 0 ? '+' : '') + exponent;
+            }
+            const point = exponent + 1;
+            if (point <= 0) return sign + '0.' + '0'.repeat(-point) + digits;
+            return sign + digits.slice(0, point) + (point < digits.length ? '.' + digits.slice(point) : '');
+        }
+
+        function roundToSignificantFigures(value, sigFigs) {
+            return formatRounded(roundedParts(value, sigFigs), false);
+        }
+
+        function formatScientificOutput(value, sigFigs) {
+            return formatRounded(roundedParts(value, sigFigs), true);
+        }
+
+        function analyzeNumber(input, targetSigFigs, method = 'half-up') {
+            const parsed = parseNumber(input);
+            if (!parsed) return null;
+            const sfInfo = countSignificantFigures(parsed);
+            return {
+                original: parsed.original, value: parsed.value,
+                sigFigCount: sfInfo.count, isAmbiguous: sfInfo.isAmbiguous,
+                rounded: targetSigFigs && !sfInfo.isAmbiguous
+                    ? formatRounded(roundedParts(parsed.normalized, targetSigFigs, method), parsed.isScientific) : null,
+                warning: sfInfo.isAmbiguous ? 'Ambiguous: use a decimal point or scientific notation' : ''
+            };
+        }
+
+        const byId = id => document.getElementById(id);
+        let lastResults = null;
+        let lastTarget = null;
+        let lastMethod = 'half-up';
+        const emptyMarkup = byId('resultsContainer').innerHTML;
+        function escapeHtml(value) {
+            return String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+        }
+        function notify(message, kind = 'success') {
+            const feedback = byId('feedback');
+            feedback.textContent = message;
+            feedback.dataset.kind = kind;
+            feedback.hidden = false;
+        }
+        function splitMeasurements(input) {
+            // Keep a spaced scientific expression as one measurement, preserving its text.
+            return input.match(/[^\s,]+(?:[ \t]*[×x][ \t]*10[ \t]*\^?[ \t]*[+\-−⁻⁺]?[\d⁰¹²³⁴⁵⁶⁷⁸⁹]+)(?=[\s,]|$)|[^\s,]+/g) || [];
+        }
+        function analyzeNumbers() {
+            byId('numberInput').removeAttribute('aria-invalid');
+            byId('sigFigsInput').removeAttribute('aria-invalid');
+            const input = byId('numberInput').value;
+            const targetText = byId('sigFigsInput').value;
+            const target = targetText === '' ? null : Number(targetText);
+            if (byId('sigFigsInput').validity.badInput || (target !== null && (!Number.isInteger(target) || target < 1 || target > 20))) {
+                byId('sigFigsInput').setAttribute('aria-invalid', 'true');
+                notify('Enter a whole number from 1 to 20, or leave the target blank to count only.', 'error');
+                byId('sigFigsInput').focus();
+                return;
+            }
+            const tokens = splitMeasurements(input);
+            if (!tokens.length) {
+                byId('numberInput').setAttribute('aria-invalid', 'true');
+                notify('Enter at least one measurement to begin.', 'error');
+                byId('numberInput').focus();
+                return;
+            }
+            lastMethod = byId('roundingMethod').value;
+            lastTarget = target;
+            lastResults = tokens.map(token => analyzeNumber(token, target, lastMethod) || {
+                original: token, invalid: true, rounded: null,
+                warning: 'Invalid format or outside the supported numeric range'
+            });
+            displayResults();
+            const review = lastResults.filter(r => r.invalid || r.isAmbiguous).length;
+            notify(`Analyzed ${lastResults.length} measurement${lastResults.length === 1 ? '' : 's'}. ${review ? review + ' require review; see Status for details.' : 'All measurements are valid.'}`);
+        }
+        function displayResults() {
+            const total = lastResults.length;
+            const review = lastResults.filter(r => r.invalid || r.isAmbiguous).length;
+            byId('totalCount').textContent = total;
+            byId('validCount').textContent = total - review;
+            byId('reviewCount').textContent = review;
+            const caption = lastTarget === null ? 'Count only · Rounding not requested' : `${lastTarget} significant figures · ${lastMethod === 'half-even' ? 'Half to even' : 'Half up'}`;
+            byId('resultsContainer').innerHTML = '<div class="table-wrap" role="region" aria-label="Measurement analysis table, scroll horizontally to view all columns" tabindex="0"><table><caption>' + escapeHtml(caption) + '</caption><thead><tr><th scope="col">Original Value</th><th scope="col">Significant Figures</th><th scope="col">Rounded Value</th><th scope="col">Status</th></tr></thead><tbody>' + lastResults.map(r => {
+                const status = r.invalid ? 'Invalid' : r.isAmbiguous ? 'Ambiguous' : 'Valid';
+                const symbol = r.invalid ? '×' : r.isAmbiguous ? '!' : '✓';
+                const count = r.invalid ? '—' : r.isAmbiguous ? 'Unspecified' : r.sigFigCount;
+                return '<tr><td class="number original">' + escapeHtml(r.original) + '</td><td class="number">' + count + '</td><td class="number">' + escapeHtml(r.rounded ?? (lastTarget === null ? 'Not requested' : '—')) + '</td><td><span class="status ' + (r.invalid ? 'invalid' : r.isAmbiguous ? 'review' : '') + '"><span aria-hidden="true">' + symbol + '</span>' + status + '</span>' + (r.warning ? '<p class="status-detail">' + escapeHtml(r.warning) + '</p>' : '') + '</td></tr>';
+            }).join('') + '</tbody></table></div>';
+            byId('copyBtn').disabled = false;
+        }
+        async function copyResults() {
+            if (!lastResults) return;
+            const heading = 'Original Value\tSignificant Figures\tRounded Value\tStatus';
+            const rows = lastResults.map(r => [r.original, r.invalid ? '—' : r.isAmbiguous ? 'Unspecified' : r.sigFigCount, r.rounded ?? (lastTarget === null ? 'Not requested' : '—'), r.invalid ? 'Invalid' : r.isAmbiguous ? 'Ambiguous' : 'Valid'].join('\t'));
+            const convention = lastTarget === null ? 'Count only' : `${lastTarget} SF; ${lastMethod === 'half-even' ? 'Half to even' : 'Half up'}`;
+            try {
+                if (!navigator.clipboard) throw new Error('Clipboard unavailable');
+                await navigator.clipboard.writeText(['SigFig Lab Results', convention, heading, ...rows].join('\n'));
+                notify('Results copied to clipboard.');
+            } catch {
+                notify('Clipboard access is unavailable. Select and copy the results table manually.', 'error');
+            }
+        }
+        function clearAll() {
+            byId('analysisForm').reset();
+            lastResults = null;
+            lastTarget = null;
+            byId('resultsContainer').innerHTML = emptyMarkup;
+            ['totalCount','validCount','reviewCount'].forEach(id => byId(id).textContent = '0');
+            ['numberInput','sigFigsInput'].forEach(id => byId(id).removeAttribute('aria-invalid'));
+            byId('copyBtn').disabled = true;
+            updateMethodHelp();
+            notify('Cleared. Ready for a new set of measurements.');
+            byId('numberInput').focus();
+        }
+        function updateMethodHelp() {
+            byId('rounding-help').textContent = byId('roundingMethod').value === 'half-even'
+                ? 'At an exact tie, keep the last retained digit even: 1.245 → 1.24 at 3 SF.'
+                : 'At an exact tie, round away from zero: 1.245 → 1.25 at 3 SF.';
+        }
+        byId('analysisForm').addEventListener('submit', event => { event.preventDefault(); analyzeNumbers(); });
+        byId('clearBtn').addEventListener('click', clearAll);
+        byId('copyBtn').addEventListener('click', copyResults);
+        byId('roundingMethod').addEventListener('change', updateMethodHelp);
+        byId('numberInput').addEventListener('keydown', event => {
+            if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
+                event.preventDefault(); analyzeNumbers();
+            }
+        });
+        updateMethodHelp();
+</script>
+</body>
+</html>
